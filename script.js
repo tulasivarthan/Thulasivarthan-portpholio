@@ -1,71 +1,45 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const alertDiv = document.getElementById('alert');
-    const profileUsernameSpan = document.getElementById('profileUsername');
+// Save user data
+function register() {
+  let user = document.getElementById("regUser").value;
+  let pass = document.getElementById("regPass").value;
 
-    // Handle user registration
-    if (registerForm) {
-        registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = registerForm.username.value;
-            const password = registerForm.password.value;
+  if(user && pass){
+    localStorage.setItem("username", user);
+    localStorage.setItem("password", pass);
+    alert("Registration successful!");
+    window.location.href = "login.html";
+  } else {
+    alert("Please fill all fields!");
+  }
+}
 
-            // Check if username already exists
-            const existingUsers = JSON.parse(localStorage.getItem('users')) || {};
-            if (existingUsers[username]) {
-                showAlert('Username already exists. Please choose another one.');
-                return;
-            }
+// Login check
+function login() {
+  let user = document.getElementById("loginUser").value;
+  let pass = document.getElementById("loginPass").value;
 
-            // Save user data
-            existingUsers[username] = password;
-            localStorage.setItem('users', JSON.stringify(existingUsers));
+  let storedUser = localStorage.getItem("username");
+  let storedPass = localStorage.getItem("password");
 
-            alert('Registration successful! You can now log in.');
-            window.location.href = 'login.html';
-        });
-    }
+  if(user === storedUser && pass === storedPass){
+    alert("Login successful!");
+    localStorage.setItem("loggedInUser", user);
+    window.location.href = "profile.html";
+  } else {
+    alert("Invalid credentials!");
+  }
+}
 
-    // Handle user login
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = loginForm.username.value;
-            const password = loginForm.password.value;
+// Show profile user
+window.onload = function() {
+  let profileUser = document.getElementById("profileUser");
+  if(profileUser){
+    profileUser.innerText = localStorage.getItem("loggedInUser");
+  }
+}
 
-            const users = JSON.parse(localStorage.getItem('users')) || {};
-            if (users[username] && users[username] === password) {
-                // Successful login
-                localStorage.setItem('currentUser', username);
-                window.location.href = 'profile.html';
-            } else {
-                // Failed login
-                showAlert('Invalid username or password.');
-            }
-        });
-    }
-
-    // Check if the user is authenticated on the profile page
-    if (profileUsernameSpan) {
-        const currentUser = localStorage.getItem('currentUser');
-        if (currentUser) {
-            profileUsernameSpan.textContent = currentUser;
-        } else {
-            // Redirect to login if not logged in
-            window.location.href = 'login.html';
-        }
-    }
-
-    // Display alert message
-    function showAlert(message) {
-        alertDiv.textContent = message;
-        alertDiv.style.display = 'block';
-    }
-});
-
-// Global logout function
-function logout() {
-    localStorage.removeItem('currentUser');
-    window.location.href = 'login.html';
+// Logout
+function logout(){
+  localStorage.removeItem("loggedInUser");
+  window.location.href = "index.html";
 }
