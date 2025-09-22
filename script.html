@@ -1,77 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Welcome - Yashwanth M's Portfolio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --primary-color: #0a66c2;
-      --font-color: #333;
-      --background-gradient: linear-gradient(135deg, #e3f2fd, #f1f8e9);
-      --box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-      --border-radius: 10px;
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const alertDiv = document.getElementById('alert');
+    const profileUsernameSpan = document.getElementById('profileUsername');
+
+    // Handle user registration
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = registerForm.username.value;
+            const password = registerForm.password.value;
+
+            // Check if username already exists
+            const existingUsers = JSON.parse(localStorage.getItem('users')) || {};
+            if (existingUsers[username]) {
+                showAlert('Username already exists. Please choose another one.');
+                return;
+            }
+
+            // Save user data
+            existingUsers[username] = password;
+            localStorage.setItem('users', JSON.stringify(existingUsers));
+
+            alert('Registration successful! You can now log in.');
+            window.location.href = 'login.html';
+        });
     }
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: var(--background-gradient);
-      color: var(--font-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
+
+    // Handle user login
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = loginForm.username.value;
+            const password = loginForm.password.value;
+
+            const users = JSON.parse(localStorage.getItem('users')) || {};
+            if (users[username] && users[username] === password) {
+                // Successful login
+                localStorage.setItem('currentUser', username);
+                window.location.href = 'profile.html';
+            } else {
+                // Failed login
+                showAlert('Invalid username or password.');
+            }
+        });
     }
-    .container {
-      background: #fff;
-      padding: 40px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      width: 100%;
-      max-width: 500px;
+
+    // Check if the user is authenticated on the profile page
+    if (profileUsernameSpan) {
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            profileUsernameSpan.textContent = currentUser;
+        } else {
+            // Redirect to login if not logged in
+            window.location.href = 'login.html';
+        }
     }
-    .container h1 {
-      color: var(--primary-color);
-      font-size: 36px;
-      margin-bottom: 15px;
+
+    // Display alert message
+    function showAlert(message) {
+        alertDiv.textContent = message;
+        alertDiv.style.display = 'block';
     }
-    .container p {
-      font-size: 18px;
-      margin-bottom: 30px;
-      line-height: 1.6;
-    }
-    .button-group {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    .button-group a {
-      text-decoration: none;
-      color: white;
-      background-color: var(--primary-color);
-      padding: 12px 25px;
-      border-radius: 5px;
-      font-size: 18px;
-      font-weight: bold;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-    .button-group a:hover {
-      background-color: #084f98;
-      transform: translateY(-2px);
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Welcome to Yashwanth M's Portfolio!</h1>
-    <p>Please log in or register to view the student portfolio.</p>
-    <div class="button-group">
-      <a href="login.html">Login</a>
-      <a href="register.html">Register</a>
-    </div>
-  </div>
-</body>
-</html>
+});
+
+// Global logout function
+function logout() {
+    localStorage.removeItem('currentUser');
+    window.location.href = 'login.html';
+}
